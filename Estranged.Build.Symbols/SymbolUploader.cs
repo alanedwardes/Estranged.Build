@@ -1,7 +1,6 @@
 ﻿using Amazon.Runtime;
 using Amazon.S3;
 using Amazon.S3.Model;
-using Amazon.S3.Transfer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Polly;
@@ -17,7 +16,6 @@ namespace Estranged.Build.Symbols
     {
         private readonly ILogger<SymbolUploader> logger;
         private readonly IAmazonS3 amazonS3;
-        private readonly ITransferUtility transfer;
 
         public static readonly IList<string> UploadFileTypes = new[] { ".pdb", ".exe" };
 
@@ -74,7 +72,7 @@ namespace Estranged.Build.Symbols
         {
             string expectedHash = CalculateMD5(file);
 
-            var response = await transfer.S3Client.GetObjectMetadataAsync(new GetObjectMetadataRequest
+            var response = await amazonS3.GetObjectMetadataAsync(new GetObjectMetadataRequest
             {
                 BucketName = bucket,
                 Key = key
