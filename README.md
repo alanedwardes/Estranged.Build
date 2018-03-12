@@ -11,7 +11,7 @@ dotnet run --project "Depot\\Tools\\Estranged.Build.Symbols"
            --properties:BUILD_LABEL "my build label"
 ```
 
-Your build environment should set up the appropriate AWS credentials and region. This can be specified using the withCredential helper in Jenkins Pipelines:
+Your build environment should set up the appropriate AWS credentials and region. This can be specified using the `withCredentials` helper in Jenkins Pipelines:
 
 ```groovy
 env.AWS_REGION = 'us-east-1'
