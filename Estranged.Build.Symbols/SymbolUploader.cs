@@ -1,7 +1,10 @@
-﻿using Amazon.S3.Model;
+﻿using Amazon.Runtime;
+using Amazon.S3;
+using Amazon.S3.Model;
 using Amazon.S3.Transfer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Polly;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,14 +16,15 @@ namespace Estranged.Build.Symbols
     public class SymbolUploader
     {
         private readonly ILogger<SymbolUploader> logger;
+        private readonly IAmazonS3 amazonS3;
         private readonly ITransferUtility transfer;
 
         public static readonly IList<string> UploadFileTypes = new[] { ".pdb", ".exe" };
 
-        public SymbolUploader(ILogger<SymbolUploader> logger, ITransferUtility transfer)
+        public SymbolUploader(ILogger<SymbolUploader> logger, IAmazonS3 amazonS3)
         {
             this.logger = logger;
-            this.transfer = transfer;
+            this.amazonS3 = amazonS3;
         }
 
         public async Task UploadSymbols(string extracted, string bucket, IEnumerable<IConfigurationSection> properties)
@@ -45,7 +49,7 @@ namespace Estranged.Build.Symbols
         {
             logger.LogInformation($"Uploading {file} to {bucket}/{key}");
 
-            var request = new TransferUtilityUploadRequest
+            var request = new PutObjectRequest
             {
                 FilePath = file,
                 Key = key,
@@ -57,7 +61,11 @@ namespace Estranged.Build.Symbols
                 request.Metadata.Add(property.Key, property.Value);
             }
 
-            await transfer.UploadAsync(request);
+            var retryPolicy = Policy
+                .Handle<AmazonServiceException>()
+                .RetryAsync(3);
+
+            await retryPolicy.ExecuteAsync(() => amazonS3.PutObjectAsync(request));
 
             logger.LogInformation($"Completed upload of {key}");
         }

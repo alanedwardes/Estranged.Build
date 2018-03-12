@@ -1,5 +1,4 @@
-﻿using Amazon;
-using Amazon.S3.Transfer;
+﻿using Amazon.S3;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -32,7 +31,7 @@ namespace Estranged.Build.Symbols
             var provider = new ServiceCollection()
                 .AddSingleton<SymbolExtractor>()
                 .AddSingleton<SymbolUploader>()
-                .AddSingleton<ITransferUtility, TransferUtility>()
+                .AddSingleton<IAmazonS3, AmazonS3Client>()
                 .AddLogging()
                 .BuildServiceProvider();
 
