@@ -29,17 +29,15 @@ namespace Estranged.Build.Symbols
                 .AddCommandLine(args)
                 .Build();
 
-            var region = RegionEndpoint.GetBySystemName(config["region"]);
-
             var provider = new ServiceCollection()
                 .AddSingleton<SymbolExtractor>()
                 .AddSingleton<SymbolUploader>()
-                .AddSingleton<ITransferUtility>(x => new TransferUtility(config["accessKey"], config["secret"], region))
+                .AddSingleton<ITransferUtility, TransferUtility>()
                 .AddLogging()
                 .BuildServiceProvider();
 
             provider.GetRequiredService<ILoggerFactory>()
-                .AddConsole();
+                    .AddConsole();
 
             var symbols = config["symbols"];
             if (!Directory.Exists(symbols))
@@ -57,11 +55,11 @@ namespace Estranged.Build.Symbols
 
             // First extract the symbols
             provider.GetRequiredService<SymbolExtractor>()
-                .ExtractSymbols(symstore, symbols, extracted);
+                    .ExtractSymbols(symstore, symbols, extracted);
 
             // Next, upload the symbols to S3
             await provider.GetRequiredService<SymbolUploader>()
-                .UploadSymbols(extracted, config["bucket"], config.GetSection("properties").GetChildren());
+                          .UploadSymbols(extracted, config["bucket"], config.GetSection("properties").GetChildren());
         }
     }
 }
