@@ -81,7 +81,7 @@ namespace Estranged.Build.Symbols
             logger.LogInformation($"Verifying hash of {key}");
 
             string actualHash = response.ETag.Trim('"');
-            if (response.ETag != expectedHash)
+            if (actualHash != expectedHash)
             {
                 throw new Exception($"Calculated hash does not match response from S3. Expected: {expectedHash}, actual: {actualHash}");
             }
