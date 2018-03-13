@@ -31,7 +31,11 @@ namespace Estranged.Build.Symbols
             var provider = new ServiceCollection()
                 .AddSingleton<SymbolExtractor>()
                 .AddSingleton<SymbolUploader>()
-                .AddSingleton<IAmazonS3, AmazonS3Client>()
+                .AddSingleton<IAmazonS3>(new AmazonS3Client(new AmazonS3Config
+                {
+                    Timeout = TimeSpan.FromHours(6),
+                    ReadWriteTimeout = TimeSpan.FromHours(6)
+                }))
                 .AddLogging()
                 .BuildServiceProvider();
 
