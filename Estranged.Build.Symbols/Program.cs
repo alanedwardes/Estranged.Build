@@ -55,7 +55,7 @@ namespace Estranged.Build.Symbols
             }
 
             var destination = config["destination"];
-            if (!Directory.Exists("destination"))
+            if (!Directory.Exists(destination))
             {
                 throw new Exception($"Directory doesn't exist: {destination}");
             }
