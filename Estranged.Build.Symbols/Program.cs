@@ -54,15 +54,21 @@ namespace Estranged.Build.Symbols
                 throw new Exception($"Executable doesn't exist: {symstore}");
             }
 
-            var extracted = Path.Combine(symbols, "ExtractedSymbols-" + Guid.NewGuid());
+            var destination = config["destination"];
+            if (!Directory.Exists("destination"))
+            {
+                throw new Exception($"Directory doesn't exist: {destination}");
+            }
+
+            string symbolDestination = Path.Combine(symbols, Path.Combine(config["destination"], "ExtractedSymbols-" + Guid.NewGuid()));
 
             // First extract the symbols
             provider.GetRequiredService<SymbolExtractor>()
-                    .ExtractSymbols(symstore, symbols, extracted);
+                    .ExtractSymbols(symstore, symbols, symbolDestination);
 
             // Next, upload the symbols to S3
             await provider.GetRequiredService<SymbolUploader>()
-                          .UploadSymbols(extracted, config["bucket"], config.GetSection("properties").GetChildren());
+                          .UploadSymbols(symbolDestination, config["bucket"], config.GetSection("properties").GetChildren());
         }
     }
 }
