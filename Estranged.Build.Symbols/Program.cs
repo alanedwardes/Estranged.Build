@@ -1,4 +1,5 @@
 ﻿using Amazon.S3;
+using Amazon.S3.Transfer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -28,14 +29,16 @@ namespace Estranged.Build.Symbols
                 .AddCommandLine(args)
                 .Build();
 
+            var s3Config = new AmazonS3Config
+            {
+                Timeout = TimeSpan.FromHours(6),
+                ReadWriteTimeout = TimeSpan.FromHours(6)
+            };
+
             var provider = new ServiceCollection()
                 .AddSingleton<SymbolExtractor>()
                 .AddSingleton<SymbolUploader>()
-                .AddSingleton<IAmazonS3>(new AmazonS3Client(new AmazonS3Config
-                {
-                    Timeout = TimeSpan.FromHours(6),
-                    ReadWriteTimeout = TimeSpan.FromHours(6)
-                }))
+                .AddSingleton<ITransferUtility>(new TransferUtility(new AmazonS3Client(s3Config)))
                 .AddLogging()
                 .BuildServiceProvider();
 

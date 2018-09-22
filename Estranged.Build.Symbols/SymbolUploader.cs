@@ -1,13 +1,8 @@
-﻿using Amazon.Runtime;
-using Amazon.S3;
-using Amazon.S3.Model;
+﻿using Amazon.S3.Transfer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Polly;
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Security.Cryptography;
 using System.Threading.Tasks;
 
 namespace Estranged.Build.Symbols
@@ -15,14 +10,14 @@ namespace Estranged.Build.Symbols
     public class SymbolUploader
     {
         private readonly ILogger<SymbolUploader> logger;
-        private readonly IAmazonS3 amazonS3;
+        private readonly ITransferUtility transferUtility;
 
         public static readonly IList<string> UploadFileTypes = new[] { ".pdb", ".exe" };
 
-        public SymbolUploader(ILogger<SymbolUploader> logger, IAmazonS3 amazonS3)
+        public SymbolUploader(ILogger<SymbolUploader> logger, ITransferUtility transferUtility)
         {
             this.logger = logger;
-            this.amazonS3 = amazonS3;
+            this.transferUtility = transferUtility;
         }
 
         public async Task UploadSymbols(string extracted, string bucket, IEnumerable<IConfigurationSection> properties)
@@ -38,8 +33,6 @@ namespace Estranged.Build.Symbols
                 string key = file.Replace(extracted, string.Empty).Replace('\\', '/').TrimStart('/');
 
                 await UploadSymbolFile(file, bucket, key, properties);
-
-                await VerifyUpload(file, bucket, key);
             }
         }
 
@@ -47,7 +40,7 @@ namespace Estranged.Build.Symbols
         {
             logger.LogInformation($"Uploading {file} to {bucket}/{key}");
 
-            var request = new PutObjectRequest
+            var request = new TransferUtilityUploadRequest
             {
                 FilePath = file,
                 Key = key,
@@ -59,46 +52,9 @@ namespace Estranged.Build.Symbols
                 request.Metadata.Add(property.Key, property.Value);
             }
 
-            var retryPolicy = Policy
-                .Handle<AmazonServiceException>()
-                .RetryAsync(3);
-
-            await retryPolicy.ExecuteAsync(() => amazonS3.PutObjectAsync(request));
+            await transferUtility.UploadAsync(request);
 
             logger.LogInformation($"Completed upload of {key}");
-        }
-
-        private async Task VerifyUpload(string file, string bucket, string key)
-        {
-            string expectedHash = CalculateMD5(file);
-
-            var response = await amazonS3.GetObjectMetadataAsync(new GetObjectMetadataRequest
-            {
-                BucketName = bucket,
-                Key = key
-            });
-
-            logger.LogInformation($"Verifying hash of {key}");
-
-            string actualHash = response.ETag.Trim('"');
-            if (actualHash != expectedHash)
-            {
-                throw new Exception($"Calculated hash does not match response from S3. Expected: {expectedHash}, actual: {actualHash}");
-            }
-
-            logger.LogInformation($"Hash of {key} verified: {actualHash}");
-        }
-
-        private string CalculateMD5(string filename)
-        {
-            using (var md5 = MD5.Create())
-            {
-                using (var stream = File.OpenRead(filename))
-                {
-                    var hash = md5.ComputeHash(stream);
-                    return BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
-                }
-            }
         }
     }
 }
