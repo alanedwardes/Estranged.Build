@@ -15,23 +15,23 @@ namespace Estranged.Build.Notarizer
             this.logger = logger;
         }
 
-        public FileInfo BuildZipFile(IEnumerable<FileInfo> executables)
+        public FileInfo BuildZipFile(DirectoryInfo appDirectory, IEnumerable<FileInfo> executables)
         {
             var zipFile = new FileInfo($"executables-{Guid.NewGuid()}.zip");
 
             logger.LogInformation($"Building ZIP file {zipFile.Name}");
+
+            var root = appDirectory.FullName.Replace("\\", "/");
 
             using (var fs = zipFile.OpenWrite())
             using (var zs = new ZipArchive(fs, ZipArchiveMode.Create))
             {
                 foreach (var executable in executables)
                 {
-                    logger.LogInformation($"Adding {executable.Name} to zip file");
+                    var executablePath = executable.FullName.Replace("\\", "/").Replace(root, string.Empty).Trim('/');
 
-                    const char pathSeparator = '/';
-                    var directory = Guid.NewGuid().ToString().Split("-")[0];
-                    zs.CreateEntry(directory + pathSeparator);
-                    zs.CreateEntryFromFile(executable.FullName, directory + pathSeparator + executable.Name);
+                    logger.LogInformation($"Adding {executablePath} to zip file");
+                    zs.CreateEntryFromFile(executable.FullName, executablePath);
                 }
             }
 

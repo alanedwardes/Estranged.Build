@@ -36,13 +36,13 @@ namespace Estranged.Build.Notarizer
                 process.Start();
                 process.WaitForExit();
 
-                var stderr = process.StandardError.ReadToEnd();
+                var stderr = process.StandardError.ReadToEnd()?.Trim();
                 if (!string.IsNullOrWhiteSpace(stderr))
                 {
                     logger.LogError(stderr);
                 }
 
-                var stdout = process.StandardOutput.ReadToEnd();
+                var stdout = process.StandardOutput.ReadToEnd()?.Trim();
                 if (!string.IsNullOrWhiteSpace(stdout))
                 {
                     logger.LogInformation(stdout);

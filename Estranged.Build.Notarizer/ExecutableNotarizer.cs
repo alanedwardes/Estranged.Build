@@ -62,6 +62,8 @@ namespace Estranged.Build.Notarizer
 
             var requestId = SubmitExecutables(zipArchive, developerUsername, developerPassword);
 
+            logger.LogInformation($"Got request ID {requestId}");
+
             var startWaitTime = DateTime.UtcNow;
 
             while (true)

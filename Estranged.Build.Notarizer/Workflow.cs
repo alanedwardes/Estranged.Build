@@ -29,7 +29,7 @@ namespace Estranged.Build.Notarizer
 
             executableSigner.SignExecutable(configuration.CertificateId, configuration.AppDirectory, configuration.EntitlementsMap);
 
-            var zipFile = executableZipBuilder.BuildZipFile(executables);
+            var zipFile = executableZipBuilder.BuildZipFile(configuration.AppDirectory, executables);
 
             await executableNotarizer.NotarizeExecutables(zipFile, configuration.AppDirectory, configuration.DeveloperUsername, configuration.DeveloperPassword);
         }
