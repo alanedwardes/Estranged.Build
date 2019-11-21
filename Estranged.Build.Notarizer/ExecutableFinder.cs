@@ -26,20 +26,20 @@ namespace Estranged.Build.Notarizer
         {
             var forbidddenFiles = new[] { "CodeResources" };
 
-            foreach (FileInfo file in directoryInfo.EnumerateFiles("*", SearchOption.AllDirectories)
-                .Where(x => !forbidddenFiles.Contains(x.Name)))
+            var allFiles = directoryInfo.EnumerateFiles("*", SearchOption.AllDirectories);
+
+            // First find the libraries - this order is important because the libraries need signing first
+            foreach (FileInfo file in allFiles.Where(x => x.Extension == ".dylib"))
             {
-                if (file.Extension == ".dylib")
+                yield return file;
+            }
+
+            // Second find the applications - these should be signed last as changes to the dylibs invalidate the signature
+            foreach (FileInfo file in allFiles.Where(x => !forbidddenFiles.Contains(x.Name) && x.Extension == string.Empty))
+            {
+                if (ContainsBinary(file))
                 {
                     yield return file;
-                }
-
-                if (file.Extension == string.Empty)
-                {
-                    if (ContainsBinary(file))
-                    {
-                        yield return file;
-                    }
                 }
             }
         }
