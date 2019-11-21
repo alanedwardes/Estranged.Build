@@ -1,14 +1,33 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace Estranged.Build.Notarizer
 {
     internal sealed class ExecutableFinder
     {
-        public IEnumerable<FileInfo> FindExecutables(DirectoryInfo directoryInfo)
+        private readonly ILogger<ExecutableFinder> logger;
+
+        public ExecutableFinder(ILogger<ExecutableFinder> logger)
         {
-            foreach (FileInfo file in directoryInfo.EnumerateFiles("*", SearchOption.AllDirectories))
+            this.logger = logger;
+        }
+
+        public FileInfo[] FindExecutables(DirectoryInfo directoryInfo)
+        {
+            var executables = FindExecutablesInternal(directoryInfo).ToArray();
+            logger.LogInformation($"Found {executables.Length} executables: {string.Join(", ", executables.Select(x => x.Name))}");
+            return executables;
+        }
+
+        private IEnumerable<FileInfo> FindExecutablesInternal(DirectoryInfo directoryInfo)
+        {
+            var forbidddenFiles = new[] { "CodeResources" };
+
+            foreach (FileInfo file in directoryInfo.EnumerateFiles("*", SearchOption.AllDirectories)
+                .Where(x => !forbidddenFiles.Contains(x.Name)))
             {
                 if (file.Extension == ".dylib")
                 {

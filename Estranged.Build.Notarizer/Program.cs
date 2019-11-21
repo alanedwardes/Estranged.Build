@@ -2,9 +2,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Estranged.Build.Notarizer
@@ -36,32 +33,15 @@ namespace Estranged.Build.Notarizer
                 .AddLogging()
                 .AddSingleton<ExecutableFinder>()
                 .AddSingleton<ExecutableSigner>()
+                .AddSingleton<ExecutableZipBuilder>()
+                .AddSingleton<ExecutableNotarizer>()
+                .AddSingleton<Workflow>()
                 .BuildServiceProvider();
 
             provider.GetRequiredService<ILoggerFactory>()
                     .AddConsole();
 
-            var logger = provider.GetRequiredService<ILogger<Program>>();
-
-            var executables = provider.GetRequiredService<ExecutableFinder>().FindExecutables(configuration.AppDirectory).ToArray();
-
-            logger.LogInformation($"Found {executables.Length} binaries: {string.Join(", ", executables.Select(x => x.Name))}");
-
-            var signer = provider.GetRequiredService<ExecutableSigner>();
-
-            foreach (var executable in executables)
-            {
-                if (configuration.EntitlementsMap.TryGetValue(executable.Name, out string[] entitlements))
-                {
-                    signer.SignExecutable(configuration.CertificateId, executable, entitlements);
-                }
-                else
-                {
-                    signer.SignExecutable(configuration.CertificateId, executable, new string[0]);
-                }
-            }
-
-            await Task.Delay(1000);
+            await provider.GetRequiredService<Workflow>().Run(configuration);
         }
     }
 }

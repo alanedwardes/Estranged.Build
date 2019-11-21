@@ -17,6 +17,8 @@ namespace Estranged.Build.Notarizer
 
         public void SignExecutable(string certificateId, FileInfo executable, string[] entitlements)
         {
+            logger.LogInformation($"Signing executable {executable.Name} with entitlements \"{string.Join(",", entitlements)}\"");
+
             var entitlementsFile = WriteEntitlements(entitlements);
 
             using (var process = new Process())
@@ -69,7 +71,7 @@ namespace Estranged.Build.Notarizer
 
             File.WriteAllText(entitlementsFile.FullName, entitlementsBuilder.ToString());
 
-            logger.LogInformation($"Writing entitlements to {entitlementsFile.FullName}");
+            logger.LogInformation($"Writing entitlements to {entitlementsFile.Name}");
             return entitlementsFile;
         }
     }
