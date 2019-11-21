@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.27004.2005
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Estranged.Build.Symbols", "Estranged.Build.Symbols\Estranged.Build.Symbols.csproj", "{4042BB3C-C6F9-45BD-A554-41022C99F99F}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Estranged.Build.Notarizer", "Estranged.Build.Notarizer\Estranged.Build.Notarizer.csproj", "{D6B1903B-DF54-4A9F-A4A0-AFBF32649971}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{4042BB3C-C6F9-45BD-A554-41022C99F99F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4042BB3C-C6F9-45BD-A554-41022C99F99F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4042BB3C-C6F9-45BD-A554-41022C99F99F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D6B1903B-DF54-4A9F-A4A0-AFBF32649971}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D6B1903B-DF54-4A9F-A4A0-AFBF32649971}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D6B1903B-DF54-4A9F-A4A0-AFBF32649971}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D6B1903B-DF54-4A9F-A4A0-AFBF32649971}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
