@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
@@ -15,8 +16,10 @@ namespace Estranged.Build.Notarizer
             this.logger = logger;
         }
 
-        public void SignExecutable(string certificateId, FileInfo executable, string[] entitlements)
+        public void SignExecutable(string certificateId, FileSystemInfo executable, IReadOnlyDictionary<string, string[]> entitlementsMap)
         {
+            var entitlements = entitlementsMap.ContainsKey(executable.Name) ? entitlementsMap[executable.Name] : new string[0];
+
             logger.LogInformation($"Signing executable {executable.Name} with entitlements \"{string.Join(",", entitlements)}\"");
 
             var entitlementsFile = WriteEntitlements(entitlements);

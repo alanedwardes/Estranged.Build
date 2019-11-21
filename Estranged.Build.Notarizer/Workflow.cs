@@ -24,15 +24,10 @@ namespace Estranged.Build.Notarizer
 
             foreach (var executable in executables)
             {
-                if (configuration.EntitlementsMap.TryGetValue(executable.Name, out string[] entitlements))
-                {
-                    executableSigner.SignExecutable(configuration.CertificateId, executable, entitlements);
-                }
-                else
-                {
-                    executableSigner.SignExecutable(configuration.CertificateId, executable, new string[0]);
-                }
+                executableSigner.SignExecutable(configuration.CertificateId, executable, configuration.EntitlementsMap);
             }
+
+            executableSigner.SignExecutable(configuration.CertificateId, configuration.AppDirectory, configuration.EntitlementsMap);
 
             var zipFile = executableZipBuilder.BuildZipFile(executables);
 

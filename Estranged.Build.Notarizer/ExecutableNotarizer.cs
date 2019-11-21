@@ -15,34 +15,52 @@ namespace Estranged.Build.Notarizer
             this.logger = logger;
         }
 
-        public async Task NotarizeExecutables(FileInfo zipArchive, DirectoryInfo appDirectory, string developerUsername, string developerPassoword)
+        public Guid SubmitExecutables(FileInfo zipArchive, string developerUsername, string developerPassword)
         {
-            logger.LogInformation($"Notarizing executables in {zipArchive.Name} with developer {developerUsername}");
+            logger.LogInformation($"Submitting {zipArchive.Name} to Apple");
 
             using (var process = new Process())
             {
                 process.StartInfo.RedirectStandardError = true;
                 process.StartInfo.RedirectStandardOutput = true;
                 process.StartInfo.FileName = "xcrun";
-                process.StartInfo.Arguments = $"altool --notarize-app -primary-bundle-id \"{zipArchive.Name}\"  -u \"{developerUsername}\" -p \"{developerPassoword}\" --file \"{zipArchive.FullName}\"";
+                process.StartInfo.Arguments = $"altool --notarize-app -primary-bundle-id \"{zipArchive.Name}\"  -u \"{developerUsername}\" -p \"{developerPassword}\" --file \"{zipArchive.FullName}\"";
 
                 logger.LogInformation($"Starting executable {process.StartInfo.FileName} {process.StartInfo.Arguments}");
 
                 process.Start();
                 process.WaitForExit();
 
-                var stderr = process.StandardError.ReadToEnd();
+                var stderr = process.StandardError.ReadToEnd()?.Trim();
                 if (!string.IsNullOrWhiteSpace(stderr))
                 {
                     logger.LogError(stderr);
                 }
 
-                var stdout = process.StandardOutput.ReadToEnd();
+                var stdout = process.StandardOutput.ReadToEnd()?.Trim();
                 if (!string.IsNullOrWhiteSpace(stdout))
                 {
                     logger.LogInformation(stdout);
+
+                    var stringReader = new StringReader(stdout);
+                    var message = stringReader.ReadLine().Trim();
+                    if (!message.StartsWith("No errors uploading"))
+                    {
+                        throw new Exception($"Unexpected message: {stdout}");
+                    }
+
+                    return Guid.Parse(stringReader.ReadLine().Trim().Replace("RequestUUID = ", string.Empty));
                 }
             }
+
+            throw new Exception("Unable to get request ID.");
+        }
+
+        public async Task NotarizeExecutables(FileInfo zipArchive, DirectoryInfo appDirectory, string developerUsername, string developerPassword)
+        {
+            logger.LogInformation($"Notarizing executables in {zipArchive.Name} with developer {developerUsername}");
+
+            var requestId = SubmitExecutables(zipArchive, developerUsername, developerPassword);
 
             var startWaitTime = DateTime.UtcNow;
 
