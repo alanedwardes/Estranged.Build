@@ -34,7 +34,7 @@ namespace Estranged.Build.Notarizer
                 var stderr = process.StandardError.ReadToEnd();
                 if (!string.IsNullOrWhiteSpace(stderr))
                 {
-                    throw new Exception(stderr);
+                    logger.LogError(stderr);
                 }
 
                 var stdout = process.StandardOutput.ReadToEnd();
