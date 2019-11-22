@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Text;
 
@@ -10,46 +9,35 @@ namespace Estranged.Build.Notarizer
     internal sealed class ExecutableSigner
     {
         private readonly ILogger<ExecutableSigner> logger;
+        private readonly ProcessRunner processRunner;
 
-        public ExecutableSigner(ILogger<ExecutableSigner> logger)
+        public ExecutableSigner(ILogger<ExecutableSigner> logger, ProcessRunner processRunner)
         {
             this.logger = logger;
+            this.processRunner = processRunner;
         }
 
         public void SignExecutable(string certificateId, FileSystemInfo executable, IReadOnlyDictionary<string, string[]> entitlementsMap)
         {
             var entitlements = entitlementsMap.ContainsKey(executable.Name) ? entitlementsMap[executable.Name] : new string[0];
 
-            logger.LogInformation($"Signing executable {executable.Name} with entitlements \"{string.Join(",", entitlements)}\"");
+            var sharedArguments = $"--options runtime --timestamp --sign \"{certificateId}\" --force";
 
-            var entitlementsFile = WriteEntitlements(entitlements);
-
-            using (var process = new Process())
+            if (entitlements.Length > 0)
             {
-                process.StartInfo.RedirectStandardError = true;
-                process.StartInfo.RedirectStandardOutput = true;
-                process.StartInfo.FileName = "codesign";
-                process.StartInfo.Arguments = $"--options runtime --timestamp --sign \"{certificateId}\" --entitlements \"{entitlementsFile.FullName}\" --force \"{executable.FullName}\"";
-
-                logger.LogInformation($"Starting executable {process.StartInfo.FileName} {process.StartInfo.Arguments}");
-
-                process.Start();
-                process.WaitForExit();
-
-                var stderr = process.StandardError.ReadToEnd()?.Trim();
-                if (!string.IsNullOrWhiteSpace(stderr))
-                {
-                    logger.LogError(stderr);
-                }
-
-                var stdout = process.StandardOutput.ReadToEnd()?.Trim();
-                if (!string.IsNullOrWhiteSpace(stdout))
-                {
-                    logger.LogInformation(stdout);
-                }
+                logger.LogInformation($"Signing executable {executable.Name} with entitlements \"{string.Join(",", entitlements)}\"");
+                var entitlementsFile = WriteEntitlements(entitlements);
+                processRunner.RunProcess("codesign", $"{sharedArguments} --entitlements \"{entitlementsFile.FullName}\" \"{executable.FullName}\"");
+                entitlementsFile.Delete();
+            }
+            else
+            {
+                logger.LogInformation($"Signing executable {executable.Name} with no entitlements");
+                processRunner.RunProcess("codesign", $"{sharedArguments} \"{executable.FullName}\"");
             }
 
-            entitlementsFile.Delete();
+            logger.LogInformation($"Validating signature for executable");
+            processRunner.RunProcess("codesign", $"--verify --deep --strict --verbose=2 \"{executable.FullName}\"");
         }
 
         private FileInfo WriteEntitlements(string[] entitlements)

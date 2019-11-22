@@ -35,6 +35,7 @@ namespace Estranged.Build.Notarizer
                 .AddSingleton<ExecutableSigner>()
                 .AddSingleton<ExecutableZipBuilder>()
                 .AddSingleton<ExecutableNotarizer>()
+                .AddSingleton<ProcessRunner>()
                 .AddSingleton<Workflow>()
                 .BuildServiceProvider();
 
