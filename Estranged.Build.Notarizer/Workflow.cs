@@ -32,6 +32,8 @@ namespace Estranged.Build.Notarizer
             var zipFile = executableZipBuilder.BuildZipFile(configuration.AppDirectory, executables);
 
             await executableNotarizer.NotarizeExecutables(zipFile, configuration.AppDirectory, configuration.DeveloperUsername, configuration.DeveloperPassword);
+
+            zipFile.Delete();
         }
     }
 }
