@@ -49,20 +49,22 @@ namespace Estranged.Build.Notarizer
             entitlementsBuilder.AppendLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
             entitlementsBuilder.AppendLine("<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">");
             entitlementsBuilder.AppendLine("<plist version=\"1.0\">");
-            entitlementsBuilder.AppendLine("<dict>");
+            entitlementsBuilder.AppendLine("\t<dict>");
 
             foreach (var entitlement in entitlements)
             {
-                entitlementsBuilder.AppendLine($"<key>{entitlement}</key>");
-                entitlementsBuilder.AppendLine("<true/>");
+                entitlementsBuilder.AppendLine($"\t\t<key>{entitlement}</key>");
+                entitlementsBuilder.AppendLine("\t\t<true/>");
             }
 
-            entitlementsBuilder.AppendLine("</dict>");
+            entitlementsBuilder.AppendLine("\t</dict>");
             entitlementsBuilder.AppendLine("</plist>");
 
-            File.WriteAllText(entitlementsFile.FullName, entitlementsBuilder.ToString());
+            var entitlementsXml = entitlementsBuilder.ToString();
 
-            logger.LogInformation($"Writing entitlements to {entitlementsFile.Name}");
+            File.WriteAllText(entitlementsFile.FullName, entitlementsXml);
+
+            logger.LogInformation($"Writing entitlements to {entitlementsFile.Name}:{Environment.NewLine}{entitlementsXml}");
             return entitlementsFile;
         }
     }
