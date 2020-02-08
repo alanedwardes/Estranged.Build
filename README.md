@@ -34,6 +34,11 @@ This process will:
 5. Wait for the notarization process to complete
 6. Staple the result of the notarization process to the app bundle
 
+To specify multiple entitlements for the bundle, use a semicolon:
+```
+--entitlements "AppBundle.app=com.apple.security.cs.allow-dyld-environment-variables;com.apple.security.app-sandbox"
+```
+
 ## Estranged.Build.Symbols
 Extracts symbols with `symstore` and uploads them to Amazon S3, so that they can be served for Visual Studio and other debugging tools.
 
