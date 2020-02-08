@@ -31,7 +31,8 @@ namespace Estranged.Build.Notarizer
                     var executablePath = executable.FullName.Replace("\\", "/").Replace(root, string.Empty).Trim('/');
 
                     logger.LogInformation($"Adding {executablePath} to zip file");
-                    zs.CreateEntryFromFile(executable.FullName, executablePath);
+                    var entry = zs.CreateEntryFromFile(executable.FullName, executablePath);
+                    entry.ExternalAttributes = -2115174400; // This represents attributes with the executable bit set
                 }
             }
 
