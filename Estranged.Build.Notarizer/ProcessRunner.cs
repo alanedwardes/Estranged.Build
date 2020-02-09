@@ -25,7 +25,7 @@ namespace Estranged.Build.Notarizer
             return result.DeserializePlist<TOutput>();
         }
 
-        public string RunProcess(string executable, string arguments, DirectoryInfo workingDirectory = null)
+        public string RunProcess(string executable, string arguments, DirectoryInfo workingDirectory = null, bool shellExecute = false)
         {
             using (var process = new Process())
             {
@@ -33,6 +33,7 @@ namespace Estranged.Build.Notarizer
                 process.StartInfo.RedirectStandardOutput = true;
                 process.StartInfo.FileName = executable;
                 process.StartInfo.Arguments = arguments;
+                process.StartInfo.UseShellExecute = shellExecute;
                 process.StartInfo.WorkingDirectory = workingDirectory?.FullName;
 
                 logger.LogInformation($"Starting executable {process.StartInfo.FileName} {process.StartInfo.Arguments} {(workingDirectory == null ? "" : "in folder " + workingDirectory.FullName)}");
