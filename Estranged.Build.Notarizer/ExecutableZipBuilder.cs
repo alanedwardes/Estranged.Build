@@ -24,9 +24,11 @@ namespace Estranged.Build.Notarizer
 
             logger.LogInformation($"Building ZIP file {zipFile.Name}");
 
-            var executablesEscaped = executables.Select(x => $"'{x}'");
+            // Translate each executable to be relative to the zip path
+            var relativeExecutables = executables.Select(x => x.FullName.Replace(appDirectory.FullName, string.Empty))
+                .Select(x => Path.Combine(appDirectory.Name, x));
 
-            processRunner.RunProcess("zip", $"{zipFile.Name} {string.Join(" ", executablesEscaped)}", zipFolder);
+            processRunner.RunProcess("zip", $"{zipFile.Name} {string.Join(" ", relativeExecutables.Select(x => $"'{x}'"))}", zipFolder);
 
             return zipFile;
         }
