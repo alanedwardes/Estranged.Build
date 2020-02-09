@@ -28,7 +28,7 @@ namespace Estranged.Build.Notarizer
             var relativeExecutables = executables.Select(x => x.FullName.Replace(appDirectory.FullName, string.Empty))
                 .Select(x => appDirectory.Name + x);
 
-            processRunner.RunShell($"cd {zipFolder.FullName} && zip {zipFile.Name} {string.Join(" ", relativeExecutables.Select(x => $"'{x}'"))}");
+            processRunner.RunProcess("/bin/bash", $"-c \"cd {zipFolder.FullName} && zip {zipFile.Name} {string.Join(" ", relativeExecutables.Select(x => $"'{x}'"))}\"");
 
             return zipFile;
         }

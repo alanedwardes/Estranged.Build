@@ -25,20 +25,6 @@ namespace Estranged.Build.Notarizer
             return result.DeserializePlist<TOutput>();
         }
 
-        public void RunShell(string executable)
-        {
-            using (var process = new Process())
-            {
-                process.StartInfo.FileName = executable;
-                process.StartInfo.UseShellExecute = true;
-
-                logger.LogInformation($"Starting shell {process.StartInfo.FileName}");
-
-                process.Start();
-                process.WaitForExit();
-            }
-        }
-
         public string RunProcess(string executable, string arguments)
         {
             using (var process = new Process())
