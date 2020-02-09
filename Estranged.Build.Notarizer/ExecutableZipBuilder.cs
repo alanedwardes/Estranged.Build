@@ -24,11 +24,7 @@ namespace Estranged.Build.Notarizer
 
             logger.LogInformation($"Building ZIP file {zipFile.Name}");
 
-            // Translate each executable to be relative to the zip path
-            var relativeExecutables = executables.Select(x => x.FullName.Replace(appDirectory.FullName, string.Empty))
-                .Select(x => appDirectory.Name + x);
-
-            processRunner.RunProcess("/bin/bash", $"-c \"cd {zipFolder.FullName} && zip {zipFile.Name} {string.Join(" ", relativeExecutables.Select(x => $"'{x}'"))}\"");
+            processRunner.RunProcess("/bin/bash", $"-c \"cd {zipFolder.FullName} && ditto -c -k --sequesterRsrc --keepParent {appDirectory.Name} {zipFile.Name}\"");
 
             return zipFile;
         }
