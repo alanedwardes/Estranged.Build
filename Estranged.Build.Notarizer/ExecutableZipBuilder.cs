@@ -19,13 +19,14 @@ namespace Estranged.Build.Notarizer
 
         public FileInfo BuildZipFile(DirectoryInfo appDirectory, IEnumerable<FileInfo> executables)
         {
-            var zipFile = new FileInfo($"executables-{Guid.NewGuid()}.zip");
+            var zipFolder = appDirectory.Parent;
+            var zipFile = new FileInfo(Path.Combine(zipFolder.FullName, $"executables-{Guid.NewGuid()}.zip"));
 
             logger.LogInformation($"Building ZIP file {zipFile.Name}");
 
             var executablesEscaped = executables.Select(x => $"'{x}'");
 
-            processRunner.RunProcess("zip", $"{zipFile.Name} {string.Join(" ", executablesEscaped)}", appDirectory.Parent);
+            processRunner.RunProcess("zip", $"{zipFile.Name} {string.Join(" ", executablesEscaped)}", zipFolder);
 
             return zipFile;
         }
