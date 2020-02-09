@@ -35,7 +35,7 @@ namespace Estranged.Build.Notarizer
                 process.StartInfo.Arguments = arguments;
                 process.StartInfo.WorkingDirectory = workingDirectory?.FullName;
 
-                logger.LogInformation($"Starting executable {process.StartInfo.FileName} {process.StartInfo.Arguments}");
+                logger.LogInformation($"Starting executable {process.StartInfo.FileName} {process.StartInfo.Arguments} {(workingDirectory == null ? "" : "in folder " + workingDirectory.FullName)}");
 
                 process.Start();
                 process.WaitForExit();
