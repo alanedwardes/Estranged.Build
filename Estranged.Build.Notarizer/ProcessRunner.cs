@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics;
+using System.IO;
 
 namespace Estranged.Build.Notarizer
 {
@@ -24,7 +25,7 @@ namespace Estranged.Build.Notarizer
             return result.DeserializePlist<TOutput>();
         }
 
-        public string RunProcess(string executable, string arguments)
+        public string RunProcess(string executable, string arguments, DirectoryInfo workingDirectory = null)
         {
             using (var process = new Process())
             {
@@ -32,6 +33,7 @@ namespace Estranged.Build.Notarizer
                 process.StartInfo.RedirectStandardOutput = true;
                 process.StartInfo.FileName = executable;
                 process.StartInfo.Arguments = arguments;
+                process.StartInfo.WorkingDirectory = workingDirectory?.FullName;
 
                 logger.LogInformation($"Starting executable {process.StartInfo.FileName} {process.StartInfo.Arguments}");
 
