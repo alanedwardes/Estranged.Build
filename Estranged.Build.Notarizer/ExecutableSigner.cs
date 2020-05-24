@@ -53,8 +53,7 @@ namespace Estranged.Build.Notarizer
 
             foreach (var entitlement in entitlements)
             {
-                entitlementsBuilder.AppendLine($"\t\t<key>{entitlement}</key>");
-                entitlementsBuilder.AppendLine("\t\t<true/>");
+                entitlementsBuilder.AppendLine($"\t\t{entitlement}");
             }
 
             entitlementsBuilder.AppendLine("\t</dict>");

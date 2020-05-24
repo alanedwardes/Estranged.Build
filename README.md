@@ -19,7 +19,7 @@ Example usage with an Unreal Engine 4 packaged game:
 dotnet run --project "depot/Tools/Estranged.Build.Notarizer"
            --appPath "Path/To/My/AppBundle.app"
            --certificateId "My Certificate ID"
-           --entitlements "AppBundle.app=com.apple.security.cs.allow-dyld-environment-variables"
+           --entitlements "AppBundle.app=<key>com.apple.security.cs.allow-dyld-environment-variables</key><true/>"
            --developerUsername $USERNAME --developerPassword $PASSWORD
 ```
 * Certificate ID is the name of your Developer ID certificate in KeyChain to be passed to `codesign` - see https://developer.apple.com/support/developer-id/
