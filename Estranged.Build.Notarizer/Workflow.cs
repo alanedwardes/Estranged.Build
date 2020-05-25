@@ -36,11 +36,14 @@ namespace Estranged.Build.Notarizer
 
             executableSigner.SignExecutable(configuration.CertificateId, configuration.AppDirectory, configuration.EntitlementsMap);
 
-            var zipFile = executableZipBuilder.BuildZipFile(configuration.AppDirectory, executables);
+            if (!configuration.SkipNotarization)
+            {
+                var zipFile = executableZipBuilder.BuildZipFile(configuration.AppDirectory, executables);
 
-            await executableNotarizer.NotarizeExecutables(zipFile, configuration.AppDirectory, configuration.DeveloperUsername, configuration.DeveloperPassword);
+                await executableNotarizer.NotarizeExecutables(zipFile, configuration.AppDirectory, configuration.DeveloperUsername, configuration.DeveloperPassword);
 
-            zipFile.Delete();
+                zipFile.Delete();
+            }
         }
     }
 }
