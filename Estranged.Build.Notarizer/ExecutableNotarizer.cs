@@ -38,15 +38,8 @@ namespace Estranged.Build.Notarizer
             AltoolInfo info;
             do
             {
-                logger.LogInformation("Waiting 1 minute");
+                logger.LogInformation($"Waiting 1 minute (waited {(int)(DateTime.UtcNow - startWaitTime).TotalMinutes} minutes total");
                 await Task.Delay(TimeSpan.FromMinutes(1));
-
-                var waitedTime = DateTime.UtcNow - startWaitTime;
-                if (waitedTime > TimeSpan.FromMinutes(30))
-                {
-                    throw new Exception("Waited over 30 minutes for notarization");
-                }
-
                 info = processRunner.RunProcess<AltoolInfo>("xcrun", $"altool {sharedArguments} --notarization-info {upload.NotarizationUpload.RequestId.Value}");
             }
             while (info.NotarizationInfo.Status == AltoolStatus.InProgress);
