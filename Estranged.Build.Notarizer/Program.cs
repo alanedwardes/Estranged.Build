@@ -32,7 +32,6 @@ namespace Estranged.Build.Notarizer
             var provider = new ServiceCollection()
                 .AddLogging()
                 .AddSingleton<ExecutableFinder>()
-                .AddSingleton<ExecutableStripper>()
                 .AddSingleton<ExecutableSigner>()
                 .AddSingleton<ExecutableZipBuilder>()
                 .AddSingleton<ExecutableNotarizer>()
