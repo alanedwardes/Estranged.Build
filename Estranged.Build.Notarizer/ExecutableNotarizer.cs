@@ -38,7 +38,7 @@ namespace Estranged.Build.Notarizer
             AltoolInfo info;
             do
             {
-                logger.LogInformation($"Waiting 1 minute (waited {(int)(DateTime.UtcNow - startWaitTime).TotalMinutes} minutes total");
+                logger.LogInformation($"Waiting 1 minute (waited {(int)(DateTime.UtcNow - startWaitTime).TotalMinutes} minutes total)");
                 await Task.Delay(TimeSpan.FromMinutes(1));
                 info = processRunner.RunProcess<AltoolInfo>("xcrun", $"altool {sharedArguments} --notarization-info {upload.NotarizationUpload.RequestId.Value}");
             }
